@@ -15,7 +15,7 @@ const pageTitles: Record<string, string> = {
 export default function TopBar() {
   const pathname = usePathname()
   const router = useRouter()
-  const title = pageTitles[pathname] ?? 'Folio'
+  const title = pageTitles[pathname] ?? 'Bookmark'
 
   const handleSignOut = async () => {
     const supabase = createClient()

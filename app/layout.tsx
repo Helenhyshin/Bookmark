@@ -8,13 +8,13 @@ const geist = Geist({
 })
 
 export const metadata: Metadata = {
-  title: 'Folio',
+  title: 'Bookmark',
   description: 'Your personal reading tracker — books, words, and inspiration.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Folio',
+    title: 'Bookmark',
   },
 }
 

@@ -1,6 +1,6 @@
 {
-  "name": "Folio",
-  "short_name": "Folio",
+  "name": "Bookmark",
+  "short_name": "Bookmark",
   "description": "Your personal reading tracker — books, words, and inspiration.",
   "start_url": "/",
   "display": "standalone",

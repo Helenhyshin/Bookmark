@@ -20,15 +20,27 @@ export async function GET(request: NextRequest) {
     const data = await res.json()
     const entry = data[0]
 
-    const meanings = entry?.meanings ?? []
-    const firstMeaning = meanings[0]
-    const firstDefinition = firstMeaning?.definitions?.[0]
+    const rawMeanings: Array<{ partOfSpeech: string; definitions: Array<{ definition: string }> }> =
+      entry?.meanings ?? []
 
-    const definition = firstDefinition?.definition ?? null
+    // Collect up to 3 distinct meanings (one per part of speech)
+    const meanings = rawMeanings.slice(0, 3).map((m) => ({
+      partOfSpeech: m.partOfSpeech,
+      definitions: m.definitions.slice(0, 2).map((d) => d.definition),
+    }))
+
+    const firstMeaning = rawMeanings[0]
+    const definition = firstMeaning?.definitions?.[0]?.definition ?? null
     const partOfSpeech = firstMeaning?.partOfSpeech ?? null
     const etymology = entry?.origin ?? null
 
-    return NextResponse.json({ definition, partOfSpeech, etymology, word: entry?.word ?? word })
+    return NextResponse.json({
+      word: entry?.word ?? word,
+      definition,
+      partOfSpeech,
+      etymology,
+      meanings,
+    })
   } catch {
     return NextResponse.json({ error: 'Failed to fetch definition' }, { status: 500 })
   }
