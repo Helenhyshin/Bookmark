@@ -21,6 +21,7 @@ export default function RecommendationCard({ rec, onAdded }: RecommendationCardP
       author: rec.author,
       genre: rec.genre,
       cover_color: rec.coverColor,
+      cover_image_url: rec.coverImageUrl ?? null,
       status: 'want_to_read',
     })
     onAdded?.()
@@ -28,7 +29,17 @@ export default function RecommendationCard({ rec, onAdded }: RecommendationCardP
 
   return (
     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col">
-      <div className="w-full h-32 rounded-xl mb-3 shadow-sm" style={{ backgroundColor: rec.coverColor }} />
+      {rec.coverImageUrl ? (
+        <img
+          src={rec.coverImageUrl}
+          alt={rec.title}
+          className="w-full h-32 rounded-xl mb-3 shadow-sm object-cover"
+          loading="lazy"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+        />
+      ) : (
+        <div className="w-full h-32 rounded-xl mb-3 shadow-sm" style={{ backgroundColor: rec.coverColor }} />
+      )}
       <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full self-start mb-1.5">
         {rec.genre}
       </span>

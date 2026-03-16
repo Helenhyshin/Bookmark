@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import FilterBar from '@/components/books/FilterBar'
 import BookCard from '@/components/books/BookCard'
 import BookDetail from '@/components/books/BookDetail'
+import AddBookForm from '@/components/books/AddBookForm'
 import type { Book } from '@/lib/types'
 
 type Status = 'all' | 'reading' | 'want_to_read' | 'completed'
@@ -16,8 +17,6 @@ export default function BooksPage() {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [newTitle, setNewTitle] = useState('')
-  const [adding, setAdding] = useState(false)
 
   const fetchBooks = useCallback(async () => {
     const supabase = createClient()
@@ -45,26 +44,6 @@ export default function BooksPage() {
     completed: books.filter((b) => b.status === 'completed').length,
   }
 
-  const addBook = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newTitle.trim()) return
-    setAdding(true)
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      await supabase.from('books').insert({
-        user_id: user.id,
-        title: newTitle.trim(),
-        status: 'want_to_read',
-        cover_color: randomColor(),
-      })
-      setNewTitle('')
-      setShowAddForm(false)
-      fetchBooks()
-    }
-    setAdding(false)
-  }
-
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -80,23 +59,7 @@ export default function BooksPage() {
 
       {/* Add book form */}
       {showAddForm && (
-        <form onSubmit={addBook} className="flex gap-2 mb-4">
-          <input
-            autoFocus
-            type="text"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Book title…"
-            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-          />
-          <button
-            type="submit"
-            disabled={adding}
-            className="bg-black text-white px-4 rounded-lg text-sm font-medium disabled:opacity-40"
-          >
-            {adding ? '…' : 'Add'}
-          </button>
-        </form>
+        <AddBookForm onAdded={() => { setShowAddForm(false); fetchBooks() }} />
       )}
 
       {/* Loading */}
@@ -165,9 +128,4 @@ export default function BooksPage() {
       )}
     </div>
   )
-}
-
-function randomColor() {
-  const colors = ['#8B7355', '#2C3E50', '#1A472A', '#6B4226', '#3B3B6D', '#8E4B2E', '#5C4033', '#2E4057']
-  return colors[Math.floor(Math.random() * colors.length)]
 }

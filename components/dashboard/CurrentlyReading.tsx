@@ -70,10 +70,19 @@ export default function CurrentlyReading() {
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       <div className="flex items-start gap-4">
         {/* Cover */}
-        <div
-          className="w-14 h-20 rounded-lg shrink-0 shadow"
-          style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
-        />
+        {book.cover_image_url ? (
+          <img
+            src={book.cover_image_url}
+            alt={book.title}
+            className="w-14 h-20 rounded-lg shrink-0 shadow object-cover"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+          />
+        ) : (
+          <div
+            className="w-14 h-20 rounded-lg shrink-0 shadow"
+            style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
+          />
+        )}
         <div className="flex-1 min-w-0">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Currently Reading</p>
           <h3 className="font-serif font-semibold text-lg leading-tight truncate">{book.title}</h3>

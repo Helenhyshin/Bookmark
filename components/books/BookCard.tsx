@@ -28,10 +28,20 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
         onClick={onClick}
         className="w-full flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 transition-all text-left"
       >
-        <div
-          className="w-12 h-16 rounded-lg shrink-0 shadow"
-          style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
-        />
+        {book.cover_image_url ? (
+          <img
+            src={book.cover_image_url}
+            alt={book.title}
+            className="w-12 h-16 rounded-lg shrink-0 shadow object-cover"
+            loading="lazy"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+          />
+        ) : (
+          <div
+            className="w-12 h-16 rounded-lg shrink-0 shadow"
+            style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
+          />
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-serif font-semibold text-sm leading-tight truncate">{book.title}</h3>
@@ -63,10 +73,20 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
     >
       {/* Cover */}
       <div className="relative mb-3">
-        <div
-          className="w-full h-36 rounded-xl shadow"
-          style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
-        />
+        {book.cover_image_url ? (
+          <img
+            src={book.cover_image_url}
+            alt={book.title}
+            className="w-full h-36 rounded-xl shadow object-cover"
+            loading="lazy"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+          />
+        ) : (
+          <div
+            className="w-full h-36 rounded-xl shadow"
+            style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
+          />
+        )}
         {book.is_favorite && (
           <Star size={14} className="absolute top-2 right-2 text-[#D4AF37] fill-[#D4AF37]" />
         )}

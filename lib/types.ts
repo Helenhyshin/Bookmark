@@ -14,6 +14,7 @@ export interface Book {
   synopsis: string | null
   status: 'reading' | 'want_to_read' | 'completed'
   cover_color: string | null
+  cover_image_url: string | null
   is_favorite: boolean
   progress: number
   created_at: string
@@ -48,4 +49,5 @@ export interface Recommendation {
   genre: string
   coverColor: string
   reasoning: string
+  coverImageUrl?: string
 }

@@ -13,13 +13,32 @@ export default function ForYouPage() {
   const [books, setBooks] = useState<Book[]>([])
   const [recs, setRecs] = useState<Recommendation[]>([])
   const [chips, setChips] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
+  const [booksLoading, setBooksLoading] = useState(true)
+  const [recsLoading, setRecsLoading] = useState(true)
+
+  const fetchRecs = useCallback(async (userBooks: Book[]) => {
+    setRecsLoading(true)
+    try {
+      const res = await fetch('/api/recommendations', { method: 'POST' })
+      if (res.ok) {
+        const data: Recommendation[] = await res.json()
+        setRecs(data)
+      } else {
+        setRecs(getRecommendations(userBooks))
+      }
+    } catch {
+      setRecs(getRecommendations(userBooks))
+    } finally {
+      setRecsLoading(false)
+    }
+  }, [])
 
   const fetchData = useCallback(async () => {
-    setLoading(true)
+    setBooksLoading(true)
+    setRecsLoading(true)
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setLoading(false); return }
+    if (!user) { setBooksLoading(false); setRecsLoading(false); return }
 
     const { data } = await supabase
       .from('books')
@@ -28,12 +47,15 @@ export default function ForYouPage() {
 
     const userBooks = (data as Book[]) ?? []
     setBooks(userBooks)
-    setRecs(getRecommendations(userBooks))
     setChips(getPatternChips(userBooks))
-    setLoading(false)
-  }, [])
+    setBooksLoading(false)
+
+    fetchRecs(userBooks)
+  }, [fetchRecs])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  const isRefreshing = booksLoading || recsLoading
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-8">
@@ -46,13 +68,13 @@ export default function ForYouPage() {
             className="text-gray-400 hover:text-black transition-colors"
             title="Refresh"
           >
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
           </button>
         </div>
 
-        <PatternChips chips={chips} />
+        {!booksLoading && <PatternChips chips={chips} />}
 
-        {loading ? (
+        {recsLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="bg-white rounded-2xl h-64 animate-pulse border border-gray-100" />
@@ -72,7 +94,7 @@ export default function ForYouPage() {
       {/* Favourite authors */}
       <section>
         <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Favourite Authors</h2>
-        {loading ? (
+        {booksLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="bg-white rounded-2xl h-32 animate-pulse border border-gray-100" />

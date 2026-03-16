@@ -50,10 +50,19 @@ export default function BookDetail({ book, onClose, onUpdated }: BookDetailProps
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div
-            className="w-12 h-16 rounded-lg shadow"
-            style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
-          />
+          {book.cover_image_url ? (
+            <img
+              src={book.cover_image_url}
+              alt={book.title}
+              className="w-12 h-16 rounded-lg shadow object-cover"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+            />
+          ) : (
+            <div
+              className="w-12 h-16 rounded-lg shadow"
+              style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
+            />
+          )}
           <div>
             <h2 className="font-serif font-bold text-lg leading-tight">{book.title}</h2>
             {book.author && <p className="text-sm text-gray-500">{book.author}</p>}
