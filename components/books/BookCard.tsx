@@ -42,12 +42,12 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
             style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
           />
         )}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-serif font-semibold text-sm leading-tight truncate">{book.title}</h3>
+            <h3 className="font-serif font-semibold text-sm leading-tight line-clamp-3 min-w-0">{book.title}</h3>
             {book.is_favorite && <Star size={14} className="text-[#D4AF37] fill-[#D4AF37] shrink-0" />}
           </div>
-          {book.author && <p className="text-xs text-gray-500 mt-0.5">{book.author}</p>}
+          {book.author && <p className="text-xs text-gray-500 mt-0.5 line-clamp-3 min-w-0">{book.author}</p>}
           <div className="flex items-center gap-2 mt-2">
             {book.genre && (
               <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
@@ -58,9 +58,6 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
               {STATUS_LABELS[book.status]}
             </span>
           </div>
-          {book.synopsis && (
-            <p className="text-xs text-gray-400 mt-1.5 line-clamp-2">{book.synopsis}</p>
-          )}
         </div>
       </button>
     )
@@ -69,22 +66,20 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all text-left"
+      className="w-[180px] h-[280px] shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all text-left flex flex-col"
     >
-      {/* Cover */}
-      <div className="relative mb-3">
-        {book.cover_image_url ? (
+      {/* Cover - fixed aspect */}
+      <div
+        className="relative w-full rounded-lg shadow mb-2 shrink-0 overflow-hidden"
+        style={{ backgroundColor: book.cover_color ?? '#8B7355', aspectRatio: '2/3' }}
+      >
+        {book.cover_image_url && (
           <img
             src={book.cover_image_url}
             alt={book.title}
-            className="w-full h-36 rounded-xl shadow object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-          />
-        ) : (
-          <div
-            className="w-full h-36 rounded-xl shadow"
-            style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
           />
         )}
         {book.is_favorite && (
@@ -92,25 +87,30 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
         )}
       </div>
 
-      {/* Genre badge */}
-      {book.genre && (
-        <span className="inline-block text-[10px] font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full mb-1.5">
-          {book.genre}
+      {/* Genre badge - fixed height */}
+      <div className="h-5 flex items-center shrink-0 mb-1">
+        {book.genre && (
+          <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
+            {book.genre}
+          </span>
+        )}
+      </div>
+
+      <div className="h-9 flex items-start shrink-0 overflow-hidden">
+        <h3 className="font-serif font-semibold text-xs leading-tight line-clamp-3">{book.title}</h3>
+      </div>
+      <div className="h-5 flex items-center shrink-0 overflow-hidden">
+        {book.author && <p className="text-[11px] text-gray-500 line-clamp-1 truncate">{book.author}</p>}
+      </div>
+
+      <div className="flex-1 min-h-0" />
+
+      {/* Status - fixed height */}
+      <div className="h-6 flex items-center shrink-0">
+        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
+          {STATUS_LABELS[book.status]}
         </span>
-      )}
-
-      <h3 className="font-serif font-semibold text-sm leading-tight line-clamp-2">{book.title}</h3>
-      {book.author && <p className="text-xs text-gray-500 mt-0.5">{book.author}</p>}
-
-      {/* Synopsis snippet */}
-      {book.synopsis && (
-        <p className="text-xs text-gray-400 mt-2 line-clamp-2 leading-relaxed">{book.synopsis}</p>
-      )}
-
-      {/* Status */}
-      <span className={`inline-block mt-2 text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
-        {STATUS_LABELS[book.status]}
-      </span>
+      </div>
     </button>
   )
 }

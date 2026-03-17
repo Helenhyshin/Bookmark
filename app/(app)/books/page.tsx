@@ -64,9 +64,9 @@ export default function BooksPage() {
 
       {/* Loading */}
       {loading && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="flex flex-wrap gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl p-4 h-56 animate-pulse border border-gray-100" />
+            <div key={i} className="w-[180px] h-[280px] shrink-0 bg-white rounded-2xl p-4 animate-pulse border border-gray-100" />
           ))}
         </div>
       )}
@@ -81,7 +81,7 @@ export default function BooksPage() {
 
       {/* Grid (web) / List (mobile) */}
       {!loading && filtered.length > 0 && (
-        <div className="hidden md:grid md:grid-cols-4 gap-4">
+        <div className="hidden md:flex md:flex-wrap md:gap-4">
           {filtered.map((book) => (
             <div key={book.id}>
               <BookCard

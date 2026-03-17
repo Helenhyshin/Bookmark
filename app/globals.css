@@ -46,15 +46,19 @@ body {
   border-radius: 3px;
 }
 
-/* Masonry grid for inspiration board */
-.masonry-grid {
-  columns: 2;
-  column-gap: 1rem;
+/* Hide scrollbar for carousels */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-@media (max-width: 768px) {
-  .masonry-grid {
-    columns: 1;
-  }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Masonry grid for inspiration board - fixed column width for consistent card sizing */
+.masonry-grid {
+  column-width: 240px;
+  column-gap: 1rem;
 }
 .masonry-item {
   break-inside: avoid;

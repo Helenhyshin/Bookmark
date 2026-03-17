@@ -76,7 +76,7 @@ export default function WordsPage() {
               <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 pb-1 border-b border-gray-200">
                 {letter}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex flex-wrap gap-3">
                 {letterWords.map((word) => (
                   <WordCard
                     key={word.id}

@@ -61,34 +61,16 @@ const GENRE_RECOMMENDATIONS: Record<string, Recommendation[]> = {
     },
   ],
   Default: [
-    {
-      title: 'The Midnight Library',
-      author: 'Matt Haig',
-      genre: 'Contemporary Fiction',
-      coverColor: '#2E4057',
-      reasoning: 'A universally beloved read about choices and second chances.',
-    },
-    {
-      title: 'Educated',
-      author: 'Tara Westover',
-      genre: 'Memoir',
-      coverColor: '#5C4033',
-      reasoning: 'One of the most compelling memoirs of recent years.',
-    },
-    {
-      title: 'Piranesi',
-      author: 'Susanna Clarke',
-      genre: 'Fantasy',
-      coverColor: '#3B3B6D',
-      reasoning: 'Unique, dreamlike, and deeply original — loved by readers everywhere.',
-    },
-    {
-      title: 'Tomorrow, and Tomorrow, and Tomorrow',
-      author: 'Gabrielle Zevin',
-      genre: 'Literary Fiction',
-      coverColor: '#6D4C41',
-      reasoning: 'A sweeping story about creativity, friendship, and making things.',
-    },
+    { title: 'The Midnight Library', author: 'Matt Haig', genre: 'Contemporary Fiction', coverColor: '#2E4057', reasoning: '' },
+    { title: 'Educated', author: 'Tara Westover', genre: 'Memoir', coverColor: '#5C4033', reasoning: '' },
+    { title: 'Piranesi', author: 'Susanna Clarke', genre: 'Fantasy', coverColor: '#3B3B6D', reasoning: '' },
+    { title: 'Tomorrow, and Tomorrow, and Tomorrow', author: 'Gabrielle Zevin', genre: 'Literary Fiction', coverColor: '#6D4C41', reasoning: '' },
+    { title: 'Project Hail Mary', author: 'Andy Weir', genre: 'Science Fiction', coverColor: '#1B3A4B', reasoning: '' },
+    { title: 'Where the Crawdads Sing', author: 'Delia Owens', genre: 'Literary Fiction', coverColor: '#4A6741', reasoning: '' },
+    { title: 'The Seven Husbands of Evelyn Hugo', author: 'Taylor Jenkins Reid', genre: 'Historical Fiction', coverColor: '#8B4513', reasoning: '' },
+    { title: 'Atomic Habits', author: 'James Clear', genre: 'Self-Help', coverColor: '#2C3E50', reasoning: '' },
+    { title: 'Klara and the Sun', author: 'Kazuo Ishiguro', genre: 'Science Fiction', coverColor: '#D4A574', reasoning: '' },
+    { title: 'The Invisible Life of Addie LaRue', author: 'V.E. Schwab', genre: 'Fantasy', coverColor: '#5C4033', reasoning: '' },
   ],
 }
 
@@ -121,7 +103,7 @@ export function getRecommendations(books: Book[]): Recommendation[] {
   for (const chip of chips) {
     const recs = GENRE_RECOMMENDATIONS[chip] ?? []
     for (const r of recs) {
-      if (!seen.has(r.title) && results.length < 4) {
+      if (!seen.has(r.title) && results.length < 10) {
         const alreadyOwned = books.some(
           (b) => b.title.toLowerCase() === r.title.toLowerCase()
         )
@@ -133,9 +115,9 @@ export function getRecommendations(books: Book[]): Recommendation[] {
     }
   }
 
-  if (results.length < 4) {
+  if (results.length < 10) {
     for (const r of GENRE_RECOMMENDATIONS['Default']) {
-      if (!seen.has(r.title) && results.length < 4) {
+      if (!seen.has(r.title) && results.length < 10) {
         seen.add(r.title)
         results.push(r)
       }

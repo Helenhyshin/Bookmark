@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { BookOpen, Clock } from 'lucide-react'
+import { BookOpen } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Book } from '@/lib/types'
 
@@ -30,13 +30,6 @@ export default function CurrentlyReading() {
     fetchCurrentBook()
   }, [])
 
-  const updateProgress = async (progress: number) => {
-    if (!book) return
-    const supabase = createClient()
-    await supabase.from('books').update({ progress }).eq('id', book.id)
-    setBook({ ...book, progress })
-  }
-
   const saveNote = async () => {
     if (!book || !note.trim()) return
     setSaving(true)
@@ -64,8 +57,6 @@ export default function CurrentlyReading() {
     )
   }
 
-  const pagesEstimate = Math.round(((100 - book.progress) / 100) * 280)
-
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       <div className="flex items-start gap-4">
@@ -87,24 +78,6 @@ export default function CurrentlyReading() {
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Currently Reading</p>
           <h3 className="font-serif font-semibold text-lg leading-tight truncate">{book.title}</h3>
           {book.author && <p className="text-sm text-gray-500">{book.author}</p>}
-
-          {/* Progress bar */}
-          <div className="mt-3">
-            <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-              <span>{book.progress}% complete</span>
-              <span className="flex items-center gap-1">
-                <Clock size={11} /> ~{pagesEstimate} pages left
-              </span>
-            </div>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={book.progress}
-              onChange={(e) => updateProgress(Number(e.target.value))}
-              className="w-full h-1.5 accent-black rounded-full cursor-pointer"
-            />
-          </div>
         </div>
       </div>
 
