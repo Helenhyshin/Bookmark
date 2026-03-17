@@ -51,7 +51,7 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
           <div className="flex items-center gap-2 mt-2">
             {book.genre && (
               <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                {book.genre}
+                {book.genre.replace(/_/g, ' ')}
               </span>
             )}
             <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
@@ -66,7 +66,7 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
   return (
     <button
       onClick={onClick}
-      className="w-[180px] h-[280px] shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all text-left flex flex-col"
+      className="w-[180px] shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all text-left flex flex-col"
     >
       {/* Cover - fixed aspect */}
       <div
@@ -88,10 +88,10 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
       </div>
 
       {/* Genre badge - fixed height */}
-      <div className="h-5 flex items-center shrink-0 mb-1">
+      <div className="h-5 flex items-center shrink-0 mb-1 overflow-hidden">
         {book.genre && (
-          <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
-            {book.genre}
+          <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full whitespace-nowrap truncate max-w-full">
+            {book.genre.replace(/_/g, ' ')}
           </span>
         )}
       </div>
@@ -102,8 +102,6 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
       <div className="h-5 flex items-center shrink-0 overflow-hidden">
         {book.author && <p className="text-[11px] text-gray-500 line-clamp-1 truncate">{book.author}</p>}
       </div>
-
-      <div className="flex-1 min-h-0" />
 
       {/* Status - fixed height */}
       <div className="h-6 flex items-center shrink-0">
