@@ -73,9 +73,12 @@ function StatusDropdown({ book, onStatusChange }: { book: Book; onStatusChange: 
 export default function BookCard({ book, onClick, view, onStatusChange }: BookCardProps) {
   if (view === 'list') {
     return (
-      <button
+      <div
         onClick={onClick}
-        className="w-full flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 transition-all text-left"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && onClick()}
+        className="w-full flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 transition-all cursor-pointer"
       >
         {book.cover_image_url ? (
           <img
@@ -112,14 +115,17 @@ export default function BookCard({ book, onClick, view, onStatusChange }: BookCa
             )}
           </div>
         </div>
-      </button>
+      </div>
     )
   }
 
   return (
-    <button
+    <div
       onClick={onClick}
-      className="w-[180px] shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all text-left flex flex-col"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+      className="w-[180px] shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col"
     >
       {/* Cover - fixed aspect */}
       <div
@@ -166,6 +172,6 @@ export default function BookCard({ book, onClick, view, onStatusChange }: BookCa
           </span>
         )}
       </div>
-    </button>
+    </div>
   )
 }
