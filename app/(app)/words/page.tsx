@@ -30,6 +30,11 @@ export default function WordsPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  const handleDelete = useCallback((id: string) => {
+    setWords((prev) => prev.filter((w) => w.id !== id))
+    createClient().from('word_bank').delete().eq('id', id)
+  }, [])
+
   // Group words by first letter
   const grouped = words.reduce<Record<string, WordEntry[]>>((acc, w) => {
     const letter = w.word[0].toUpperCase()
@@ -93,7 +98,7 @@ export default function WordsPage() {
                     key={word.id}
                     word={word}
                     bookTitle={word.book_source_id ? bookMap[word.book_source_id] : undefined}
-                    onDeleted={fetchData}
+                    onDelete={() => handleDelete(word.id)}
                   />
                 ))}
               </div>

@@ -1,22 +1,15 @@
 'use client'
 
 import { Trash2 } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import type { WordEntry } from '@/lib/types'
 
 interface WordCardProps {
   word: WordEntry
   bookTitle?: string
-  onDeleted: () => void
+  onDelete: () => void
 }
 
-export default function WordCard({ word, bookTitle, onDeleted }: WordCardProps) {
-  const handleDelete = async () => {
-    const supabase = createClient()
-    await supabase.from('word_bank').delete().eq('id', word.id)
-    onDeleted()
-  }
-
+export default function WordCard({ word, bookTitle, onDelete }: WordCardProps) {
   return (
     <div className="w-[280px] h-[180px] shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 group flex flex-col">
       <div className="flex items-start justify-between gap-2 shrink-0">
@@ -31,7 +24,7 @@ export default function WordCard({ word, bookTitle, onDeleted }: WordCardProps) 
           </div>
         </div>
         <button
-          onClick={handleDelete}
+          onClick={onDelete}
           className="text-gray-200 group-hover:text-red-400 transition-colors shrink-0 mt-0.5"
           title="Delete"
         >
