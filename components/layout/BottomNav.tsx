@@ -2,14 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, Type, Sparkles, Star } from 'lucide-react'
+import { Home, BookOpen, Type, Sparkles } from 'lucide-react'
 
 const navItems = [
   { href: '/', icon: Home, label: 'Home' },
   { href: '/books', icon: BookOpen, label: 'Books' },
   { href: '/words', icon: Type, label: 'Words' },
   { href: '/inspiration', icon: Sparkles, label: 'Inspire' },
-  { href: '/for-you', icon: Star, label: 'For You' },
 ]
 
 export default function BottomNav() {

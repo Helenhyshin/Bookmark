@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const data = await res.json()
     const entry = data[0]
 
-    const rawMeanings: Array<{ partOfSpeech: string; definitions: Array<{ definition: string }> }> =
+    const rawMeanings: Array<{ partOfSpeech: string; definitions: Array<{ definition: string; example?: string }> }> =
       entry?.meanings ?? []
 
     // Collect up to 3 distinct meanings (one per part of speech)
@@ -34,11 +34,21 @@ export async function GET(request: NextRequest) {
     const partOfSpeech = firstMeaning?.partOfSpeech ?? null
     const etymology = entry?.origin ?? null
 
+    // Find the first example sentence across all meanings/definitions
+    let exampleSentence: string | null = null
+    for (const meaning of rawMeanings) {
+      for (const def of meaning.definitions) {
+        if (def.example) { exampleSentence = def.example; break }
+      }
+      if (exampleSentence) break
+    }
+
     return NextResponse.json({
       word: entry?.word ?? word,
       definition,
       partOfSpeech,
       etymology,
+      exampleSentence,
       meanings,
     })
   } catch {

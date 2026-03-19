@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
-import { getRecommendations } from '@/lib/ai-helpers'
 import type { Book, Recommendation } from '@/lib/types'
 
 function getCoverFromDocs(docs: Array<{ cover_i?: number }>): string | null {
@@ -73,40 +72,26 @@ async function addCoversToRecs(recs: Recommendation[]): Promise<Recommendation[]
   )
 }
 
-export async function POST() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const { data } = await supabase
-    .from('books')
-    .select('*')
-    .eq('user_id', user.id)
-
-  const allBooks = (data as Book[]) ?? []
+async function generateAndCache(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  allBooks: Book[],
+  bookCount: number
+): Promise<Recommendation[]> {
   const wantToRead = allBooks.filter((b) => b.status === 'want_to_read')
-
-  // Use To Read list for AI context; fallback to all books if empty
   const booksForPrompt = wantToRead.length > 0 ? wantToRead : allBooks
-
-  if (booksForPrompt.length === 0) {
-    const fallbackRecs = getRecommendations(allBooks)
-    const withCovers = await addCoversToRecs(fallbackRecs)
-    return NextResponse.json(withCovers)
-  }
 
   const bookList = booksForPrompt
     .map((b) => `- "${b.title}" by ${b.author ?? 'Unknown'} (${b.genre ?? 'Unknown genre'})`)
     .join('\n')
 
-  const prompt = `Based on this user's To Read list:\n${bookList}\n\nRecommend exactly 10 books they haven't read yet that complement their taste. Return ONLY a raw JSON array (no markdown, no explanation) with this exact schema:\n[{"title":"...","author":"...","genre":"...","coverColor":"...","reasoning":"..."}]\n\ncoverColor must be a hex color that fits the book's mood. reasoning should be 1-2 sentences explaining why this book suits their taste.`
+  const seed = Math.floor(Math.random() * 1_000_000)
+  const prompt = `Based on this user's To Read list:\n${bookList}\n\nRecommend exactly 10 books they haven't read yet that complement their taste. Be creative and varied — avoid the most obvious choices. Seed: ${seed}\n\nReturn ONLY a raw JSON array (no markdown, no explanation) with this exact schema:\n[{"title":"...","author":"...","genre":"...","coverColor":"...","reasoning":"..."}]\n\ncoverColor must be a hex color that fits the book's mood. reasoning should be 1-2 sentences explaining why this book suits their taste.`
+
+  let recs: Recommendation[]
 
   try {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
     const message = await client.messages.create(
       {
         model: 'claude-sonnet-4-6',
@@ -114,16 +99,77 @@ export async function POST() {
         system: 'You are a literary recommendation engine. Return only raw JSON arrays, never markdown code blocks or explanation text.',
         messages: [{ role: 'user', content: prompt }],
       },
-      { signal: AbortSignal.timeout(15000) }
+      { signal: AbortSignal.timeout(25000) }
     )
+    let text = message.content[0].type === 'text' ? message.content[0].text : ''
+    text = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+    recs = JSON.parse(text)
+  } catch (err) {
+    console.error('[recommendations] AI generation failed:', err)
+    throw new Error('generation_failed')
+  }
 
-    const text = message.content[0].type === 'text' ? message.content[0].text : ''
-    const recs: Recommendation[] = JSON.parse(text)
-    const withCovers = await addCoversToRecs(recs)
-    return NextResponse.json(withCovers)
+  const withCovers = await addCoversToRecs(recs)
+
+  await supabase.from('ai_recommendations').upsert({
+    user_id: userId,
+    recommendations: withCovers,
+    book_count: bookCount,
+    books_snapshot_at: new Date().toISOString(),
+  }, { onConflict: 'user_id' })
+
+  return withCovers
+}
+
+export async function POST(request: Request) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const body = await request.json().catch(() => ({}))
+  const force = body?.force === true
+
+  // Get current book count and all books in parallel
+  const [{ count }, { data }] = await Promise.all([
+    supabase.from('books').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+    supabase.from('books').select('*').eq('user_id', user.id),
+  ])
+
+  const currentCount = count ?? 0
+  const allBooks = (data as Book[]) ?? []
+
+  // Check cache
+  const { data: cached } = await supabase
+    .from('ai_recommendations')
+    .select('*')
+    .eq('user_id', user.id)
+    .single()
+
+  const libraryChanged = cached != null && cached.book_count !== currentCount
+
+  // Serve cache if valid and not forced
+  if (cached && !libraryChanged && !force) {
+    return NextResponse.json({ recommendations: cached.recommendations, libraryChanged: false })
+  }
+
+  // Return stale cache immediately if library changed but user hasn't asked to refresh
+  if (cached && libraryChanged && !force) {
+    return NextResponse.json({ recommendations: cached.recommendations, libraryChanged: true })
+  }
+
+  // No books in library yet
+  if (allBooks.length === 0) {
+    return NextResponse.json({ recommendations: [], noBooks: true })
+  }
+
+  // Generate fresh recommendations (first visit or forced refresh)
+  try {
+    const recommendations = await generateAndCache(supabase, user.id, allBooks, currentCount)
+    return NextResponse.json({ recommendations, libraryChanged: false })
   } catch {
-    const fallbackRecs = getRecommendations(allBooks)
-    const withCovers = await addCoversToRecs(fallbackRecs)
-    return NextResponse.json(withCovers)
+    return NextResponse.json({ error: 'generation_failed' }, { status: 500 })
   }
 }

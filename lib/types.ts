@@ -27,6 +27,7 @@ export interface WordEntry {
   definition: string | null
   part_of_speech: string | null
   etymology: string | null
+  example_sentence: string | null
   book_source_id: string | null
   created_at: string
 }

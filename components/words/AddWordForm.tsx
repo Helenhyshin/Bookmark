@@ -15,6 +15,7 @@ interface DictResult {
   definition: string | null
   partOfSpeech: string | null
   etymology: string | null
+  exampleSentence: string | null
   meanings: Meaning[]
 }
 
@@ -123,6 +124,7 @@ export default function AddWordForm({ onAdded, books }: AddWordFormProps) {
         definition: def?.definition ?? null,
         part_of_speech: def?.partOfSpeech ?? null,
         etymology: def?.etymology ?? null,
+        example_sentence: def?.exampleSentence ?? null,
         book_source_id: bookSourceId || null,
       })
       setWord('')
@@ -210,6 +212,12 @@ export default function AddWordForm({ onAdded, books }: AddWordFormProps) {
             ))
           ) : (
             def.definition && <p className="text-sm text-gray-700">{def.definition}</p>
+          )}
+
+          {def.exampleSentence && (
+            <p className="text-xs text-gray-500 italic leading-relaxed border-t border-gray-200 pt-2">
+              &ldquo;{def.exampleSentence}&rdquo;
+            </p>
           )}
 
           {def.etymology && (

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import AlphaNav from '@/components/words/AlphaNav'
 import AddWordForm from '@/components/words/AddWordForm'
@@ -43,9 +44,19 @@ export default function WordsPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
-      {/* Alpha nav */}
-      <div className="mb-5">
-        <AlphaNav activeLetters={activeLetters} />
+      {/* Alpha nav + Review link */}
+      <div className="mb-5 flex items-center gap-4">
+        <div className="flex-1">
+          <AlphaNav activeLetters={activeLetters} />
+        </div>
+        {words.length > 0 && (
+          <Link
+            href="/words/review"
+            className="shrink-0 text-xs font-medium bg-black text-white rounded-lg px-3 py-1.5 hover:bg-gray-900 transition-colors"
+          >
+            Start Review
+          </Link>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row gap-6">

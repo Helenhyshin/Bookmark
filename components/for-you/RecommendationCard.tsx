@@ -1,18 +1,16 @@
 'use client'
 
-import { Plus } from 'lucide-react'
+import { Plus, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Recommendation } from '@/lib/types'
 
 interface RecommendationCardProps {
   rec: Recommendation
+  isInLibrary?: boolean
   onAdded?: () => void
 }
 
-const CARD_WIDTH = 180
-const CARD_HEIGHT = 280
-
-export default function RecommendationCard({ rec, onAdded }: RecommendationCardProps) {
+export default function RecommendationCard({ rec, isInLibrary = false, onAdded }: RecommendationCardProps) {
   const handleAdd = async () => {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -31,13 +29,10 @@ export default function RecommendationCard({ rec, onAdded }: RecommendationCardP
   }
 
   return (
-    <div
-      className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col shrink-0"
-      style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
-    >
-      {/* Fixed cover */}
+    <div className="w-[180px] h-full shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all flex flex-col">
+      {/* Cover — 2:3 aspect ratio matching BookCard */}
       <div
-        className="w-full rounded-lg mb-2 shadow-sm overflow-hidden shrink-0 relative"
+        className="relative w-full rounded-lg shadow mb-2 shrink-0 overflow-hidden"
         style={{ backgroundColor: rec.coverColor, aspectRatio: '2/3' }}
       >
         {rec.coverImageUrl && (
@@ -53,10 +48,11 @@ export default function RecommendationCard({ rec, onAdded }: RecommendationCardP
       </div>
 
       <div className="h-5 flex items-center shrink-0 mb-1">
-        <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
+        <span className="text-[10px] font-medium bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full truncate">
           {rec.genre}
         </span>
       </div>
+
       <div className="h-9 flex items-start shrink-0 overflow-hidden">
         <h3 className="font-serif font-semibold text-xs leading-tight line-clamp-3">{rec.title}</h3>
       </div>
@@ -66,12 +62,20 @@ export default function RecommendationCard({ rec, onAdded }: RecommendationCardP
 
       <div className="flex-1 min-h-0" />
 
-      <button
-        onClick={handleAdd}
-        className="h-8 flex items-center justify-center gap-1 bg-black text-white text-[11px] font-medium rounded-lg hover:bg-gray-900 transition-colors shrink-0"
-      >
-        <Plus size={13} /> Add to library
-      </button>
+      <div className="h-7 flex items-center shrink-0">
+        {isInLibrary ? (
+          <div className="w-full h-7 flex items-center justify-center gap-1 bg-gray-100 text-gray-500 text-[10px] font-medium rounded-lg">
+            <Check size={11} /> In your library
+          </div>
+        ) : (
+          <button
+            onClick={handleAdd}
+            className="w-full h-7 flex items-center justify-center gap-1 bg-black text-white text-[10px] font-medium rounded-lg hover:bg-gray-900 transition-colors"
+          >
+            <Plus size={11} /> Add to library
+          </button>
+        )}
+      </div>
     </div>
   )
 }

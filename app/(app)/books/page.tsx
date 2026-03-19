@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { Plus } from 'lucide-react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import FilterBar from '@/components/books/FilterBar'
 import BookCard from '@/components/books/BookCard'
@@ -12,11 +12,21 @@ import type { Book } from '@/lib/types'
 type Status = 'all' | 'reading' | 'want_to_read' | 'completed'
 
 export default function BooksPage() {
+  return (
+    <Suspense>
+      <BooksPageInner />
+    </Suspense>
+  )
+}
+
+function BooksPageInner() {
+  const searchParams = useSearchParams()
+  const initialFilter = (searchParams.get('filter') as Status | null) ?? 'all'
+
   const [books, setBooks] = useState<Book[]>([])
-  const [filter, setFilter] = useState<Status>('all')
+  const [filter, setFilter] = useState<Status>(initialFilter)
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showAddForm, setShowAddForm] = useState(false)
 
   const fetchBooks = useCallback(async () => {
     const supabase = createClient()
@@ -35,6 +45,15 @@ export default function BooksPage() {
 
   useEffect(() => { fetchBooks() }, [fetchBooks])
 
+  const handleStatusChange = useCallback(async (book: Book, status: Book['status']) => {
+    const supabase = createClient()
+    await supabase.from('books').update({ status }).eq('id', book.id)
+    setBooks((prev) => prev.map((b) => b.id === book.id ? { ...b, status } : b))
+    if (selectedBook?.id === book.id) {
+      setSelectedBook((prev) => prev ? { ...prev, status } : prev)
+    }
+  }, [selectedBook])
+
   const filtered = filter === 'all' ? books : books.filter((b) => b.status === filter)
 
   const counts: Record<Status, number> = {
@@ -46,27 +65,19 @@ export default function BooksPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <FilterBar active={filter} onChange={setFilter} counts={counts} />
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="shrink-0 flex items-center gap-1.5 bg-black text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-900 transition-colors ml-3"
-        >
-          <Plus size={16} /> Add
-        </button>
-      </div>
+      {/* Always-visible add form */}
+      <AddBookForm onAdded={fetchBooks} />
 
-      {/* Add book form */}
-      {showAddForm && (
-        <AddBookForm onAdded={() => { setShowAddForm(false); fetchBooks() }} />
-      )}
+      {/* Filter bar */}
+      <div className="mb-4">
+        <FilterBar active={filter} onChange={setFilter} counts={counts} />
+      </div>
 
       {/* Loading */}
       {loading && (
         <div className="flex flex-wrap gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="w-[180px] h-[280px] shrink-0 bg-white rounded-2xl p-4 animate-pulse border border-gray-100" />
+            <div key={i} className="w-[180px] h-[366px] shrink-0 bg-white rounded-2xl p-4 animate-pulse border border-gray-100" />
           ))}
         </div>
       )}
@@ -75,11 +86,11 @@ export default function BooksPage() {
       {!loading && filtered.length === 0 && (
         <div className="text-center py-16 text-gray-400">
           <p className="text-lg mb-1">No books yet</p>
-          <p className="text-sm">Click &ldquo;Add&rdquo; to add your first book.</p>
+          <p className="text-sm">Search for a book above to add it to your library.</p>
         </div>
       )}
 
-      {/* Grid (web) / List (mobile) */}
+      {/* Grid (desktop) */}
       {!loading && filtered.length > 0 && (
         <div className="hidden md:flex md:flex-wrap md:gap-4">
           {filtered.map((book) => (
@@ -88,8 +99,8 @@ export default function BooksPage() {
                 book={book}
                 view="grid"
                 onClick={() => setSelectedBook(selectedBook?.id === book.id ? null : book)}
+                onStatusChange={(status) => handleStatusChange(book, status)}
               />
-              {/* Inline detail panel for this book */}
               {selectedBook?.id === book.id && (
                 <BookDetail
                   book={book}
@@ -111,6 +122,7 @@ export default function BooksPage() {
               book={book}
               view="list"
               onClick={() => setSelectedBook(book)}
+              onStatusChange={(status) => handleStatusChange(book, status)}
             />
           ))}
         </div>

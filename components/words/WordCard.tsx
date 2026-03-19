@@ -45,6 +45,11 @@ export default function WordCard({ word, bookTitle, onDeleted }: WordCardProps) 
         ) : (
           <p className="text-sm text-gray-300 italic">No definition saved.</p>
         )}
+        {word.example_sentence && (
+          <p className="text-xs text-gray-400 italic mt-1.5 leading-relaxed">
+            &ldquo;{word.example_sentence}&rdquo;
+          </p>
+        )}
         {word.etymology && (
           <p className="text-xs text-gray-400 italic mt-2 leading-relaxed border-t border-gray-100 pt-2">
             <span className="font-semibold not-italic text-gray-500">Origin: </span>

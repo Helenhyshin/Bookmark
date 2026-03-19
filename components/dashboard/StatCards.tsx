@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { BookMarked, CheckCircle, Type, Sparkles } from 'lucide-react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 interface Stats {
@@ -40,22 +41,26 @@ export default function StatCards() {
   }, [])
 
   const cards = [
-    { label: 'To Read', value: stats.toRead, icon: BookMarked, color: '#D4AF37' },
-    { label: 'Completed', value: stats.completed, icon: CheckCircle, color: '#22c55e' },
-    { label: 'Words', value: stats.words, icon: Type, color: '#800080' },
-    { label: 'Inspirations', value: stats.inspirations, icon: Sparkles, color: '#3b82f6' },
+    { label: 'To Read', value: stats.toRead, icon: BookMarked, color: '#D4AF37', href: '/books?filter=want_to_read' },
+    { label: 'Completed', value: stats.completed, icon: CheckCircle, color: '#22c55e', href: '/books?filter=completed' },
+    { label: 'Words', value: stats.words, icon: Type, color: '#800080', href: '/words' },
+    { label: 'Inspirations', value: stats.inspirations, icon: Sparkles, color: '#3b82f6', href: '/inspiration' },
   ]
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      {cards.map(({ label, value, icon: Icon, color }) => (
-        <div key={label} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+      {cards.map(({ label, value, icon: Icon, color, href }) => (
+        <Link
+          key={label}
+          href={href}
+          className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all block"
+        >
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">{label}</span>
             <Icon size={16} style={{ color }} />
           </div>
           <p className="text-3xl font-bold font-serif">{value}</p>
-        </div>
+        </Link>
       ))}
     </div>
   )

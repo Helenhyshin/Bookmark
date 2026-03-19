@@ -7,8 +7,6 @@ import type { Book } from '@/lib/types'
 
 export default function CurrentlyReading() {
   const [book, setBook] = useState<Book | null>(null)
-  const [note, setNote] = useState('')
-  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     const fetchCurrentBook = async () => {
@@ -29,21 +27,6 @@ export default function CurrentlyReading() {
     }
     fetchCurrentBook()
   }, [])
-
-  const saveNote = async () => {
-    if (!book || !note.trim()) return
-    setSaving(true)
-    const supabase = createClient()
-    await supabase.from('inspirations').insert({
-      user_id: book.user_id,
-      type: 'passage',
-      content: note,
-      source: book.title,
-      color_border: 'purple',
-    })
-    setNote('')
-    setSaving(false)
-  }
 
   if (!book) {
     return (
@@ -81,23 +64,6 @@ export default function CurrentlyReading() {
         </div>
       </div>
 
-      {/* Quick note */}
-      <div className="mt-4 flex gap-2">
-        <textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Jot a quick note or passage…"
-          rows={2}
-          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-black"
-        />
-        <button
-          onClick={saveNote}
-          disabled={saving || !note.trim()}
-          className="bg-black text-white text-xs font-medium px-3 rounded-lg disabled:opacity-40 hover:bg-gray-900 transition-colors"
-        >
-          Save
-        </button>
-      </div>
     </div>
   )
 }

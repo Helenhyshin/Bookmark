@@ -1,27 +1,76 @@
 'use client'
 
-import { Star } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { Star, ChevronDown } from 'lucide-react'
 import type { Book } from '@/lib/types'
 
-const STATUS_LABELS = {
+const STATUS_LABELS: Record<Book['status'], string> = {
   reading: 'Reading',
   want_to_read: 'To Read',
   completed: 'Done',
 }
 
-const STATUS_COLORS = {
+const STATUS_COLORS: Record<Book['status'], string> = {
   reading: 'bg-blue-50 text-blue-700',
   want_to_read: 'bg-gray-100 text-gray-600',
   completed: 'bg-green-50 text-green-700',
 }
 
+const STATUS_OPTIONS: { value: Book['status']; label: string }[] = [
+  { value: 'reading', label: 'Reading' },
+  { value: 'want_to_read', label: 'Want to Read' },
+  { value: 'completed', label: 'Completed' },
+]
+
 interface BookCardProps {
   book: Book
   onClick: () => void
   view: 'grid' | 'list'
+  onStatusChange?: (status: Book['status']) => void
 }
 
-export default function BookCard({ book, onClick, view }: BookCardProps) {
+function StatusDropdown({ book, onStatusChange }: { book: Book; onStatusChange: (s: Book['status']) => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o) }}
+        className={`flex items-center gap-0.5 text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors ${STATUS_COLORS[book.status]}`}
+      >
+        {STATUS_LABELS[book.status]}
+        <ChevronDown size={10} className="ml-0.5 opacity-60" />
+      </button>
+      {open && (
+        <div className="absolute z-50 top-full mt-1 left-0 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden min-w-[120px]">
+          {STATUS_OPTIONS.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onStatusChange(value); setOpen(false) }}
+              className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${value === book.status ? 'font-semibold' : ''}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function BookCard({ book, onClick, view, onStatusChange }: BookCardProps) {
   if (view === 'list') {
     return (
       <button
@@ -54,9 +103,13 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
                 {book.genre.replace(/_/g, ' ')}
               </span>
             )}
-            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
-              {STATUS_LABELS[book.status]}
-            </span>
+            {onStatusChange ? (
+              <StatusDropdown book={book} onStatusChange={onStatusChange} />
+            ) : (
+              <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
+                {STATUS_LABELS[book.status]}
+              </span>
+            )}
           </div>
         </div>
       </button>
@@ -105,9 +158,13 @@ export default function BookCard({ book, onClick, view }: BookCardProps) {
 
       {/* Status - fixed height */}
       <div className="h-6 flex items-center shrink-0">
-        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
-          {STATUS_LABELS[book.status]}
-        </span>
+        {onStatusChange ? (
+          <StatusDropdown book={book} onStatusChange={onStatusChange} />
+        ) : (
+          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
+            {STATUS_LABELS[book.status]}
+          </span>
+        )}
       </div>
     </button>
   )
