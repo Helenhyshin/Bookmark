@@ -44,7 +44,7 @@ export default function TopBar() {
   return (
     <header className="h-12 bg-black text-white flex items-center justify-between px-4 md:pl-[76px] sticky top-0 z-30">
       <div className="flex items-center gap-3">
-        <span className="text-white font-serif font-bold text-lg leading-none md:hidden">B</span>
+        <span className="text-white font-serif font-bold text-lg leading-none">B</span>
         <h1 className="text-sm font-semibold tracking-widest uppercase">{title}</h1>
       </div>
       <div className="flex items-center gap-3">
