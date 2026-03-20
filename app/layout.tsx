@@ -38,7 +38,9 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className={`${geist.variable} antialiased`}>{children}</body>
+      <body className={`${geist.variable} antialiased`}>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   )
 }
