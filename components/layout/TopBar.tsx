@@ -11,6 +11,7 @@ const pageTitles: Record<string, string> = {
   '/words': 'Word Bank',
   '/words/review': 'Word Review',
   '/inspiration': 'Inspiration',
+  '/settings': 'Settings',
 }
 
 export default function TopBar() {
