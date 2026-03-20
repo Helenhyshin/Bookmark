@@ -15,7 +15,12 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-[60px] bg-black hidden md:flex flex-col items-center py-6 gap-8 z-40">
+    <aside className="fixed left-0 top-0 h-full w-[60px] bg-black hidden md:flex flex-col items-center z-40">
+      {/* Logo — h-12 matches TopBar height so "B" aligns with page title */}
+      <div className="h-12 flex items-center justify-center shrink-0">
+        <span className="text-white font-serif font-bold text-lg leading-none">B</span>
+      </div>
+
       {/* Nav items */}
       <nav className="flex flex-col items-center gap-6 flex-1 mt-4">
         {navItems.map(({ href, icon: Icon, label }) => {
