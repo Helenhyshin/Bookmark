@@ -10,6 +10,7 @@ const ALLOWED_HOSTS = [
   '*.googleusercontent.com',
   '*.gstatic.com',
   'storage.googleapis.com',
+  '*.nyt.com',
 ]
 
 function isHostAllowed(hostname: string): boolean {
