@@ -4,7 +4,7 @@ import TopBar from '@/components/layout/TopBar'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F5F5F0]">
+    <div className="min-h-screen" style={{ background: 'var(--theme-bg)' }}>
       <Sidebar />
       <TopBar />
       <main className="md:ml-[60px] pb-16 md:pb-0 min-h-[calc(100vh-48px)]">
