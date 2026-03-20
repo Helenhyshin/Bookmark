@@ -26,7 +26,7 @@ function nytToRec(book: NYTBook, index: number): Recommendation {
     genre: book.description,
     coverColor: COVER_COLORS[index % COVER_COLORS.length],
     coverImageUrl: book.coverUrl ?? undefined,
-    reason: book.weeksOnList > 1 ? `${book.weeksOnList} weeks on the list` : 'New to the list',
+    reasoning: book.weeksOnList > 1 ? `${book.weeksOnList} weeks on the list` : 'New to the list',
   }
 }
 
