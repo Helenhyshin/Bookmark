@@ -89,7 +89,16 @@ export default function WordReviewPage() {
         >
           <ArrowLeft size={14} /> Word Bank
         </Link>
-        <span className="text-xs text-gray-400 tabular-nums">{index + 1} / {words.length}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400 tabular-nums">{index + 1} / {words.length}</span>
+          <button
+            onClick={shuffle}
+            className="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-black transition-colors border border-gray-200 rounded-lg px-2.5 py-1 hover:border-gray-400"
+            title="Shuffle deck"
+          >
+            <Shuffle size={12} /> Shuffle
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 min-h-[280px] flex flex-col items-center justify-center text-center mb-6">
