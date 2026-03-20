@@ -30,6 +30,12 @@ export default function WordReviewPage() {
     fetchWords()
   }, [])
 
+  const shuffle = useCallback(() => {
+    setWords((w) => [...w].sort(() => Math.random() - 0.5))
+    setIndex(0)
+    setRevealed(false)
+  }, [])
+
   const goNext = useCallback(() => {
     setIndex((i) => Math.min(i + 1, words.length - 1))
     setRevealed(false)
