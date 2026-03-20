@@ -56,24 +56,7 @@ export default function FloatingAddButton() {
           ) : mode === 'book' ? (
             <AddBookForm onAdded={close} />
           ) : (
-            <form onSubmit={handleWordSubmit} className="space-y-3">
-              <p className="text-sm font-semibold">Add a word</p>
-              <input
-                autoFocus
-                type="text"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder="Word…"
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-              />
-              <button
-                type="submit"
-                disabled={loading || !value.trim()}
-                className="w-full bg-black text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-40"
-              >
-                {loading ? 'Adding…' : 'Add'}
-              </button>
-            </form>
+            <AddWordForm onAdded={close} books={books} />
           )}
         </div>
       )}
