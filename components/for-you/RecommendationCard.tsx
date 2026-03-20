@@ -46,6 +46,11 @@ export default function RecommendationCard({ rec, isInLibrary = false, onAdded, 
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
           />
         )}
+        {rank !== undefined && (
+          <div className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-black/70 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+            {rank}
+          </div>
+        )}
       </div>
 
       <div className="h-5 flex items-center shrink-0 mb-1">
