@@ -1,8 +1,5 @@
 @import "tailwindcss";
 
-/* Class-based dark mode for Tailwind v4 */
-@variant dark (&:where(.dark, .dark *));
-
 :root {
   --folio-beige: #F5F5F0;
   --folio-black: #000000;
