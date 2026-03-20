@@ -9,6 +9,7 @@ const ALLOWED_HOSTS = [
   'lh3.googleusercontent.com',
   '*.googleusercontent.com',
   '*.gstatic.com',
+  'storage.googleapis.com',
 ]
 
 function isHostAllowed(hostname: string): boolean {
