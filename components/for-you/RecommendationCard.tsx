@@ -8,9 +8,10 @@ interface RecommendationCardProps {
   rec: Recommendation
   isInLibrary?: boolean
   onAdded?: () => void
+  rank?: number
 }
 
-export default function RecommendationCard({ rec, isInLibrary = false, onAdded }: RecommendationCardProps) {
+export default function RecommendationCard({ rec, isInLibrary = false, onAdded, rank }: RecommendationCardProps) {
   const handleAdd = async () => {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
