@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Star, ChevronDown } from 'lucide-react'
+import { Star, ChevronDown, Trash2 } from 'lucide-react'
 import type { Book } from '@/lib/types'
 
 const STATUS_LABELS: Record<Book['status'], string> = {
@@ -27,6 +27,7 @@ interface BookCardProps {
   onClick: () => void
   view: 'grid' | 'list'
   onStatusChange?: (status: Book['status']) => void
+  onDelete?: () => void
 }
 
 function StatusDropdown({ book, onStatusChange }: { book: Book; onStatusChange: (s: Book['status']) => void }) {
@@ -70,7 +71,7 @@ function StatusDropdown({ book, onStatusChange }: { book: Book; onStatusChange: 
   )
 }
 
-export default function BookCard({ book, onClick, view, onStatusChange }: BookCardProps) {
+export default function BookCard({ book, onClick, view, onStatusChange, onDelete }: BookCardProps) {
   if (view === 'list') {
     return (
       <div
@@ -97,7 +98,22 @@ export default function BookCard({ book, onClick, view, onStatusChange }: BookCa
         <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-serif font-semibold text-sm leading-tight line-clamp-3 min-w-0">{book.title}</h3>
-            {book.is_favorite && <Star size={14} className="text-[#D4AF37] fill-[#D4AF37] shrink-0" />}
+            <div className="flex items-center gap-1 shrink-0">
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete()
+                  }}
+                  className="p-1 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                  aria-label="Delete book"
+                >
+                  <Trash2 size={16} strokeWidth={2} />
+                </button>
+              )}
+              {book.is_favorite && <Star size={14} className="text-[#D4AF37] fill-[#D4AF37] shrink-0" />}
+            </div>
           </div>
           {book.author && <p className="text-xs text-gray-500 mt-0.5 line-clamp-3 min-w-0">{book.author}</p>}
           <div className="flex items-center gap-2 mt-2">
@@ -142,7 +158,7 @@ export default function BookCard({ book, onClick, view, onStatusChange }: BookCa
           />
         )}
         {book.is_favorite && (
-          <Star size={14} className="absolute top-2 right-2 text-[#D4AF37] fill-[#D4AF37]" />
+          <Star size={14} className="absolute top-2 right-2 text-[#D4AF37] fill-[#D4AF37] pointer-events-none" />
         )}
       </div>
 
@@ -162,14 +178,29 @@ export default function BookCard({ book, onClick, view, onStatusChange }: BookCa
         {book.author && <p className="text-[11px] text-gray-500 line-clamp-1 truncate">{book.author}</p>}
       </div>
 
-      {/* Status - fixed height */}
-      <div className="h-6 flex items-center shrink-0">
-        {onStatusChange ? (
-          <StatusDropdown book={book} onStatusChange={onStatusChange} />
-        ) : (
-          <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
-            {STATUS_LABELS[book.status]}
-          </span>
+      {/* Status + delete — bottom of card */}
+      <div className="mt-auto flex items-center justify-between gap-2 shrink-0 min-h-[28px]">
+        <div className="min-w-0 flex-1 flex items-center">
+          {onStatusChange ? (
+            <StatusDropdown book={book} onStatusChange={onStatusChange} />
+          ) : (
+            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
+              {STATUS_LABELS[book.status]}
+            </span>
+          )}
+        </div>
+        {onDelete && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete()
+            }}
+            className="shrink-0 p-1 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            aria-label="Delete book"
+          >
+            <Trash2 size={16} strokeWidth={2} />
+          </button>
         )}
       </div>
     </div>

@@ -54,6 +54,15 @@ function BooksPageInner() {
     }
   }, [selectedBook])
 
+  const handleDelete = useCallback(async (book: Book) => {
+    if (!confirm(`Remove “${book.title}” from your library?`)) return
+    const supabase = createClient()
+    const { error } = await supabase.from('books').delete().eq('id', book.id)
+    if (error) return
+    setBooks((prev) => prev.filter((b) => b.id !== book.id))
+    setSelectedBook((prev) => (prev?.id === book.id ? null : prev))
+  }, [])
+
   const filtered = filter === 'all' ? books : books.filter((b) => b.status === filter)
 
   const counts: Record<Status, number> = {
@@ -100,6 +109,7 @@ function BooksPageInner() {
                 view="grid"
                 onClick={() => setSelectedBook(selectedBook?.id === book.id ? null : book)}
                 onStatusChange={(status) => handleStatusChange(book, status)}
+                onDelete={() => handleDelete(book)}
               />
               {selectedBook?.id === book.id && (
                 <BookDetail
@@ -123,6 +133,7 @@ function BooksPageInner() {
               view="list"
               onClick={() => setSelectedBook(book)}
               onStatusChange={(status) => handleStatusChange(book, status)}
+              onDelete={() => handleDelete(book)}
             />
           ))}
         </div>
