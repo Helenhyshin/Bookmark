@@ -115,16 +115,25 @@ export default function AddWordForm({ onAdded, books }: AddWordFormProps) {
     if (!word.trim()) return
     setSaving(true)
 
+    // If debounce hasn't resolved yet, fetch definition synchronously now
+    let resolvedDef = def
+    if (!resolvedDef && word.trim().length >= 2) {
+      try {
+        const res = await fetch(`/api/dictionary?word=${encodeURIComponent(word.trim())}`)
+        if (res.ok) resolvedDef = await res.json()
+      } catch { /* save without definition */ }
+    }
+
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       await supabase.from('word_bank').insert({
         user_id: user.id,
-        word: def?.word ?? word.trim(),
-        definition: def?.definition ?? null,
-        part_of_speech: def?.partOfSpeech ?? null,
-        etymology: def?.etymology ?? null,
-        example_sentence: def?.exampleSentence ?? null,
+        word: resolvedDef?.word ?? word.trim(),
+        definition: resolvedDef?.definition ?? null,
+        part_of_speech: resolvedDef?.partOfSpeech ?? null,
+        etymology: resolvedDef?.etymology ?? null,
+        example_sentence: resolvedDef?.exampleSentence ?? null,
         book_source_id: bookSourceId || null,
       })
       setWord('')
