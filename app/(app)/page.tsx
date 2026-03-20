@@ -2,6 +2,7 @@ import StatCards from '@/components/dashboard/StatCards'
 import CurrentlyReading from '@/components/dashboard/CurrentlyReading'
 import WordOfTheDay from '@/components/dashboard/WordOfTheDay'
 import AIPicks from '@/components/dashboard/AIPicks'
+import NYTBestsellers from '@/components/dashboard/NYTBestsellers'
 import OnboardingBanner from '@/components/dashboard/OnboardingBanner'
 import FloatingAddButton from '@/components/ui/FloatingAddButton'
 
@@ -22,6 +23,9 @@ export default function DashboardPage() {
 
       {/* AI picks */}
       <AIPicks />
+
+      {/* NYT Bestsellers */}
+      <NYTBestsellers />
 
       {/* Floating add — mobile only */}
       <FloatingAddButton />
