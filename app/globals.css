@@ -27,6 +27,23 @@
   --theme-input: #2C2C2E;
 }
 
+/* Dark mode overrides for hardcoded Tailwind classes */
+.dark .bg-white { background-color: #1C1C1E !important; }
+.dark .bg-stone-100,
+.dark .bg-\[\#F5F5F0\] { background-color: #111111 !important; }
+.dark .bg-gray-50,
+.dark .bg-stone-50 { background-color: #1C1C1E !important; }
+.dark .text-black,
+.dark .text-gray-900 { color: #F5F5F0 !important; }
+.dark .text-gray-700 { color: #D1D5DB !important; }
+.dark .text-gray-600 { color: #9CA3AF !important; }
+.dark .text-gray-500 { color: #6B7280 !important; }
+.dark .text-gray-400 { color: #6B7280 !important; }
+.dark .border-gray-100 { border-color: #2C2C2E !important; }
+.dark .border-gray-200 { border-color: #3C3C3E !important; }
+.dark .border-stone-200 { border-color: #3C3C3E !important; }
+.dark .divide-gray-100 > * + * { border-color: #2C2C2E !important; }
+
 @theme inline {
   --color-background: var(--folio-beige);
   --color-foreground: var(--folio-black);
