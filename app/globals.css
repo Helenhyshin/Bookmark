@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Class-based dark mode for Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
 :root {
   --folio-beige: #F5F5F0;
   --folio-black: #000000;
@@ -8,6 +11,23 @@
   --folio-card: #FFFFFF;
   --folio-muted: #6B7280;
   --folio-border: #E5E7EB;
+
+  /* Semantic theme tokens */
+  --theme-bg: #F5F5F0;
+  --theme-card: #FFFFFF;
+  --theme-text: #000000;
+  --theme-muted: #6B7280;
+  --theme-border: #E5E7EB;
+  --theme-input: #F9FAFB;
+}
+
+.dark {
+  --theme-bg: #111111;
+  --theme-card: #1C1C1E;
+  --theme-text: #F5F5F0;
+  --theme-muted: #9CA3AF;
+  --theme-border: #2C2C2E;
+  --theme-input: #2C2C2E;
 }
 
 @theme inline {
@@ -23,10 +43,11 @@
 }
 
 body {
-  background: var(--folio-beige);
-  color: var(--folio-black);
+  background: var(--theme-bg);
+  color: var(--theme-text);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .font-serif {
