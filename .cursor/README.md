@@ -1,6 +1,21 @@
 # Project MCP servers
 
-This project uses [Model Context Protocol](https://cursor.com/docs/mcp) (MCP) for Supabase and GitHub. API keys are stored in the project `.env` and referenced in `.cursor/mcp.json`.
+This project uses [Model Context Protocol](https://cursor.com/docs/mcp) (MCP) for Supabase and GitHub.
+
+| Client        | Project MCP file        |
+|---------------|-------------------------|
+| **Cursor**    | `.cursor/mcp.json`      |
+| **Claude Code** | `.mcp.json` (repo root) [docs](https://docs.claude.com/en/docs/claude-code/mcp) |
+
+Both are committed so everyone who clones the repo gets the same server definitions. **Secrets are not in git:** each person puts their own tokens in `.env` (see `.env.example`). Claude Code expands `${VAR}` in `.mcp.json`; Cursor uses `${env:VAR}` in `.cursor/mcp.json`—same variable names, different syntax.
+
+The `.claude/` folder is for Claude Code **instructions** (e.g. `CLAUDE.md`), not for MCP—see `.claude/README.md`.
+
+## Team access
+
+- Anyone with the repo has the MCP *configuration*.
+- **Supabase:** each developer needs access to the project in the Supabase dashboard (invite them to the org/project) and their own [personal access token](https://supabase.com/dashboard/account/tokens). The token authorizes MCP against your account; `SUPABASE_PROJECT_REF` selects this app’s project.
+- **GitHub:** each person uses a token with the scopes they need (e.g. `repo`).
 
 ## Setup
 
@@ -20,6 +35,6 @@ This project uses [Model Context Protocol](https://cursor.com/docs/mcp) (MCP) fo
 - **Server:** `@modelcontextprotocol/server-github` (via `npx`)
 - **Auth:** Set `GITHUB_PERSONAL_ACCESS_TOKEN` in `.env`. [Create a token](https://github.com/settings/tokens) with the scopes you need (e.g. `repo`).
 
-The GitHub server uses `envFile: ".env"` so it loads variables from the project `.env`. For the Supabase remote server, Cursor resolves `${env:...}` from the environment it was started in; if you open Cursor from the project folder, some setups load `.env` automatically—otherwise start Cursor from a terminal after running `source .env` or export the vars there.
+The GitHub server uses `envFile: ".env"` so it loads variables from the project `.env`. For the Supabase **remote** HTTP server, Cursor does not support `envFile` on that entry—`${env:SUPABASE_*}` must be present in the environment when Cursor starts (e.g. export them in your shell, use direnv, or your OS user env). If vars are missing, set them and restart Cursor.
 
 Restart Cursor after changing `.cursor/mcp.json` or `.env`.
