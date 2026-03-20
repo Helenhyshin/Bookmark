@@ -75,16 +75,28 @@ export default function AddBookForm({ onAdded }: AddBookFormProps) {
     setSaving(true)
     setError(null)
 
+    // If user typed but didn't pick a suggestion, fetch the best match now
+    let book = selected
+    if (!book) {
+      try {
+        const res = await fetch(`/api/books/suggest?q=${encodeURIComponent(query.trim())}`)
+        if (res.ok) {
+          const list: BookSuggestion[] = await res.json()
+          if (list.length > 0) book = list[0]
+        }
+      } catch { /* fall through with title only */ }
+    }
+
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       const randomColor = COVER_COLORS[Math.floor(Math.random() * COVER_COLORS.length)]
       const { error: insertError } = await supabase.from('books').insert({
         user_id: user.id,
-        title: selected?.title ?? query.trim(),
-        author: selected?.author ?? null,
-        genre: selected?.genre ?? null,
-        cover_image_url: selected?.coverUrl ?? null,
+        title: book?.title ?? query.trim(),
+        author: book?.author ?? null,
+        genre: book?.genre ?? null,
+        cover_image_url: book?.coverUrl ?? null,
         cover_color: randomColor,
         status,
       })
