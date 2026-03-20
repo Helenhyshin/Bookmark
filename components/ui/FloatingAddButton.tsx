@@ -1,32 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, X, BookOpen, Type } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import AddBookForm from '@/components/books/AddBookForm'
+import AddWordForm from '@/components/words/AddWordForm'
+import type { Book } from '@/lib/types'
 
 export default function FloatingAddButton() {
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<'book' | 'word' | null>(null)
-  const [value, setValue] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [books, setBooks] = useState<Book[]>([])
 
-  const handleWordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!value.trim()) return
-    setLoading(true)
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      await supabase.from('word_bank').insert({ user_id: user.id, word: value.trim() })
+  useEffect(() => {
+    if (mode === 'word') {
+      const supabase = createClient()
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          supabase.from('books').select('id, title').eq('user_id', user.id).then(({ data }) => {
+            if (data) setBooks(data as Book[])
+          })
+        }
+      })
     }
-    setValue('')
-    setMode(null)
-    setOpen(false)
-    setLoading(false)
-  }
+  }, [mode])
 
-  const close = () => { setOpen(false); setMode(null); setValue('') }
+  const close = () => { setOpen(false); setMode(null) }
 
   return (
     <>
