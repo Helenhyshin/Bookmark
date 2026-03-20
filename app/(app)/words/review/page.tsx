@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowRight, Eye } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Eye, Shuffle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { WordEntry } from '@/lib/types'
 
