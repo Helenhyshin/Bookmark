@@ -20,6 +20,10 @@ export default function AddBookForm({ onAdded }: AddBookFormProps) {
   const [status, setStatus] = useState<'want_to_read' | 'reading' | 'completed'>('want_to_read')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [manual, setManual] = useState(false)
+  const [manualTitle, setManualTitle] = useState('')
+  const [manualAuthor, setManualAuthor] = useState('')
+  const [manualGenre, setManualGenre] = useState('')
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -66,18 +70,30 @@ export default function AddBookForm({ onAdded }: AddBookFormProps) {
     setQuery('')
     setSuggestions([])
     setShowSuggestions(false)
+    setManual(false)
+    setManualTitle('')
+    setManualAuthor('')
+    setManualGenre('')
     inputRef.current?.focus()
+  }
+
+  const enterManualMode = () => {
+    setManual(true)
+    setManualTitle(query.trim())
+    setShowSuggestions(false)
+    setSuggestions([])
+    setSelected(null)
   }
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!query.trim()) return
+    const title = manual ? manualTitle.trim() : (selected?.title ?? query.trim())
+    if (!title) return
     setSaving(true)
     setError(null)
 
-    // If user typed but didn't pick a suggestion, fetch the best match now
     let book = selected
-    if (!book) {
+    if (!manual && !book) {
       try {
         const res = await fetch(`/api/books/suggest?q=${encodeURIComponent(query.trim())}`)
         if (res.ok) {
@@ -93,10 +109,10 @@ export default function AddBookForm({ onAdded }: AddBookFormProps) {
       const randomColor = COVER_COLORS[Math.floor(Math.random() * COVER_COLORS.length)]
       const { error: insertError } = await supabase.from('books').insert({
         user_id: user.id,
-        title: book?.title ?? query.trim(),
-        author: book?.author ?? null,
-        genre: book?.genre ?? null,
-        cover_image_url: book?.coverUrl ?? null,
+        title: manual ? manualTitle.trim() : (book?.title ?? query.trim()),
+        author: manual ? (manualAuthor.trim() || null) : (book?.author ?? null),
+        genre: manual ? (manualGenre.trim() || null) : (book?.genre ?? null),
+        cover_image_url: manual ? null : (book?.coverUrl ?? null),
         cover_color: randomColor,
         status,
       })
@@ -108,6 +124,10 @@ export default function AddBookForm({ onAdded }: AddBookFormProps) {
       setQuery('')
       setSelected(null)
       setSuggestions([])
+      setManual(false)
+      setManualTitle('')
+      setManualAuthor('')
+      setManualGenre('')
       onAdded()
     }
     setSaving(false)
@@ -123,78 +143,145 @@ export default function AddBookForm({ onAdded }: AddBookFormProps) {
     <form onSubmit={handleAdd} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4 mb-4">
       <h3 className="text-sm font-semibold text-gray-700">Add a book</h3>
 
-      {/* Search input + suggestions */}
-      <div className="relative" ref={containerRef}>
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10" />
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setSelected(null); setShowSuggestions(true) }}
-          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-          placeholder="Search by title…"
-          autoComplete="off"
-          className="w-full pl-9 pr-9 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
-        />
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-          {fetching && <Loader2 size={14} className="text-gray-400 animate-spin" />}
-          {query && !fetching && (
-            <button type="button" onClick={clearSelection} className="text-gray-300 hover:text-gray-500 transition-colors">
-              <X size={14} />
+      {manual ? (
+        /* Manual entry fields */
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-gray-500">Manual entry</p>
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Back to search
             </button>
-          )}
+          </div>
+          <input
+            type="text"
+            value={manualTitle}
+            onChange={(e) => setManualTitle(e.target.value)}
+            placeholder="Title *"
+            autoComplete="off"
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          />
+          <input
+            type="text"
+            value={manualAuthor}
+            onChange={(e) => setManualAuthor(e.target.value)}
+            placeholder="Author"
+            autoComplete="off"
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          />
+          <input
+            type="text"
+            value={manualGenre}
+            onChange={(e) => setManualGenre(e.target.value)}
+            placeholder="Genre"
+            autoComplete="off"
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+          />
         </div>
+      ) : (
+        <>
+          {/* Search input + suggestions */}
+          <div className="relative" ref={containerRef}>
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setSelected(null); setShowSuggestions(true) }}
+              onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+              placeholder="Search by title…"
+              autoComplete="off"
+              className="w-full pl-9 pr-9 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+              {fetching && <Loader2 size={14} className="text-gray-400 animate-spin" />}
+              {query && !fetching && (
+                <button type="button" onClick={clearSelection} className="text-gray-300 hover:text-gray-500 transition-colors">
+                  <X size={14} />
+                </button>
+              )}
+            </div>
 
-        {/* Suggestions dropdown */}
-        {showSuggestions && suggestions.length > 0 && (
-          <ul className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-            {suggestions.map((s, i) => (
-              <li key={i}>
+            {/* Suggestions dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                {suggestions.map((s, i) => (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => { e.preventDefault(); selectSuggestion(s) }}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-3"
+                    >
+                      {s.coverUrl ? (
+                        <img
+                          src={s.coverUrl}
+                          alt=""
+                          className="w-8 h-11 rounded object-cover shrink-0 shadow-sm"
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                        />
+                      ) : (
+                        <div className="w-8 h-11 rounded bg-gray-200 shrink-0" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{s.title}</p>
+                        {s.author && <p className="text-xs text-gray-400 truncate">{s.author}</p>}
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* No results — offer manual entry */}
+            {showSuggestions && !fetching && query.trim().length >= 2 && suggestions.length === 0 && (
+              <div className="absolute z-50 top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-lg p-3 text-center">
+                <p className="text-sm text-gray-500 mb-2">No results found</p>
                 <button
                   type="button"
-                  onMouseDown={(e) => { e.preventDefault(); selectSuggestion(s) }}
-                  className="w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors flex items-center gap-3"
+                  onMouseDown={(e) => { e.preventDefault(); enterManualMode() }}
+                  className="text-sm font-medium text-black hover:underline"
                 >
-                  {s.coverUrl ? (
-                    <img
-                      src={s.coverUrl}
-                      alt=""
-                      className="w-8 h-11 rounded object-cover shrink-0 shadow-sm"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                    />
-                  ) : (
-                    <div className="w-8 h-11 rounded bg-gray-200 shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{s.title}</p>
-                    {s.author && <p className="text-xs text-gray-400 truncate">{s.author}</p>}
-                  </div>
+                  Add manually
                 </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Selected book preview */}
-      {selected && (
-        <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
-          {selected.coverUrl ? (
-            <img
-              src={selected.coverUrl}
-              alt={selected.title}
-              className="w-10 h-14 rounded object-cover shadow"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-            />
-          ) : (
-            <div className="w-10 h-14 rounded bg-gray-300" />
-          )}
-          <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">{selected.title}</p>
-            {selected.author && <p className="text-xs text-gray-500">{selected.author}</p>}
-            {selected.genre && <p className="text-[10px] text-gray-400 mt-0.5">{selected.genre}</p>}
+              </div>
+            )}
           </div>
-        </div>
+
+          {/* Always-visible manual entry link */}
+          {!selected && (
+            <button
+              type="button"
+              onClick={enterManualMode}
+              className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              Can&apos;t find your book? Add it manually
+            </button>
+          )}
+
+          {/* Selected book preview */}
+          {selected && (
+            <div className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
+              {selected.coverUrl ? (
+                <img
+                  src={selected.coverUrl}
+                  alt={selected.title}
+                  className="w-10 h-14 rounded object-cover shadow"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                />
+              ) : (
+                <div className="w-10 h-14 rounded bg-gray-300" />
+              )}
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">{selected.title}</p>
+                {selected.author && <p className="text-xs text-gray-500">{selected.author}</p>}
+                {selected.genre && <p className="text-[10px] text-gray-400 mt-0.5">{selected.genre}</p>}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Status */}
@@ -222,7 +309,7 @@ export default function AddBookForm({ onAdded }: AddBookFormProps) {
 
       <button
         type="submit"
-        disabled={saving || !query.trim()}
+        disabled={saving || (manual ? !manualTitle.trim() : !query.trim())}
         className="w-full flex items-center justify-center gap-2 bg-black text-white rounded-lg py-2.5 text-sm font-medium disabled:opacity-40 hover:bg-gray-900 transition-colors"
       >
         <Plus size={16} />

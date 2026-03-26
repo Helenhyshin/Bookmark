@@ -87,28 +87,26 @@ export default function AIPicks() {
     <div>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500">AI Picks</h2>
-        <button
-          onClick={() => fetchPicks(true)}
-          className="text-gray-400 hover:text-black transition-colors"
-          title="Refresh recommendations"
-          disabled={refreshing}
-        >
-          <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
-        </button>
-      </div>
-
-      {libraryChanged && (
-        <div className="flex items-center justify-between bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 mb-3 gap-2">
-          <p className="text-xs text-stone-600">Your library changed — new picks available.</p>
+        {libraryChanged ? (
           <button
             onClick={() => fetchPicks(true)}
             disabled={refreshing}
-            className="text-xs font-medium text-black hover:underline shrink-0 disabled:opacity-50"
+            className="flex items-center gap-1.5 text-xs font-medium text-black hover:text-gray-600 transition-colors disabled:opacity-50"
           >
-            {refreshing ? 'Updating…' : 'Update picks'}
+            <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
+            {refreshing ? 'Updating…' : 'Library changed — update picks'}
           </button>
-        </div>
-      )}
+        ) : (
+          <button
+            onClick={() => fetchPicks(true)}
+            className="text-gray-400 hover:text-black transition-colors"
+            title="Refresh recommendations"
+            disabled={refreshing}
+          >
+            <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+          </button>
+        )}
+      </div>
 
       {!loading && error === 'no_books' && (
         <p className="text-sm text-gray-400 py-4">Add some books to your library to get personalised recommendations.</p>

@@ -61,7 +61,7 @@ export default function SignUpPage() {
           <div className="inline-flex items-center justify-center w-14 h-14 bg-black rounded-2xl mb-4">
             <BookOpen size={28} className="text-[#D4AF37]" />
           </div>
-          <h1 className="text-2xl font-bold font-serif">Folio</h1>
+          <h1 className="text-2xl font-bold font-serif">Bookmark</h1>
           <p className="text-gray-500 text-sm mt-1">Start your reading journey.</p>
         </div>
 

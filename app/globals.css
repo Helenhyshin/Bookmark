@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 :root {
   --folio-beige: #F5F5F0;
   --folio-black: #000000;

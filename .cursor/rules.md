@@ -1,4 +1,4 @@
-# Folio Project Rules & Technical Specification
+# Bookmark Project Rules & Technical Specification
 
 ## Design System (Visual Wireframes Ref)
 - **Palette**: Body: Warm Beige (use `#F5F5F0` or `bg-stone-100`); Navigation: Black (`#000000`); Accents: Gold (`#D4AF37`) for quotes/favorites, Purple (`#800080`) for passages.

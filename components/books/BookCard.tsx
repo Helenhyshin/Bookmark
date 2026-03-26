@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Star, ChevronDown, Trash2 } from 'lucide-react'
 import type { Book } from '@/lib/types'
 
@@ -30,24 +30,31 @@ interface BookCardProps {
   onDelete?: () => void
 }
 
-function StatusDropdown({ book, onStatusChange }: { book: Book; onStatusChange: (s: Book['status']) => void }) {
+function StatusDropdown({ book, onStatusChange, onOpenChange }: { book: Book; onStatusChange: (s: Book['status']) => void; onOpenChange?: (open: boolean) => void }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const onOpenChangeRef = useRef(onOpenChange)
+  onOpenChangeRef.current = onOpenChange
+
+  const updateOpen = useCallback((next: boolean) => {
+    setOpen(next)
+    onOpenChangeRef.current?.(next)
+  }, [])
 
   useEffect(() => {
     if (!open) return
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    const handler = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) updateOpen(false)
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [open])
+    document.addEventListener('pointerdown', handler)
+    return () => document.removeEventListener('pointerdown', handler)
+  }, [open, updateOpen])
 
   return (
     <div ref={ref} className="relative">
       <button
         type="button"
-        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o) }}
+        onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); updateOpen(!open) }}
         className={`flex items-center gap-0.5 text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors ${STATUS_COLORS[book.status]}`}
       >
         {STATUS_LABELS[book.status]}
@@ -59,8 +66,8 @@ function StatusDropdown({ book, onStatusChange }: { book: Book; onStatusChange: 
             <button
               key={value}
               type="button"
-              onClick={(e) => { e.stopPropagation(); onStatusChange(value); setOpen(false) }}
-              className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${value === book.status ? 'font-semibold' : ''}`}
+              onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); onStatusChange(value); updateOpen(false) }}
+              className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 active:bg-gray-100 transition-colors ${value === book.status ? 'font-semibold' : ''}`}
             >
               {label}
             </button>
@@ -72,6 +79,8 @@ function StatusDropdown({ book, onStatusChange }: { book: Book; onStatusChange: 
 }
 
 export default function BookCard({ book, onClick, view, onStatusChange, onDelete }: BookCardProps) {
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+
   if (view === 'list') {
     return (
       <div
@@ -79,7 +88,7 @@ export default function BookCard({ book, onClick, view, onStatusChange, onDelete
         role="button"
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && onClick()}
-        className="w-full flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 transition-all cursor-pointer"
+        className={`w-full flex items-center gap-4 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 transition-all cursor-pointer relative ${dropdownOpen ? 'z-50' : 'z-0'}`}
       >
         {book.cover_image_url ? (
           <img
@@ -95,7 +104,7 @@ export default function BookCard({ book, onClick, view, onStatusChange, onDelete
             style={{ backgroundColor: book.cover_color ?? '#8B7355' }}
           />
         )}
-        <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-serif font-semibold text-sm leading-tight line-clamp-3 min-w-0">{book.title}</h3>
             <div className="flex items-center gap-1 shrink-0">
@@ -123,7 +132,7 @@ export default function BookCard({ book, onClick, view, onStatusChange, onDelete
               </span>
             )}
             {onStatusChange ? (
-              <StatusDropdown book={book} onStatusChange={onStatusChange} />
+              <StatusDropdown book={book} onStatusChange={onStatusChange} onOpenChange={setDropdownOpen} />
             ) : (
               <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
                 {STATUS_LABELS[book.status]}
@@ -141,7 +150,7 @@ export default function BookCard({ book, onClick, view, onStatusChange, onDelete
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
-      className="w-[180px] shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col"
+      className={`w-[180px] shrink-0 bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-gray-300 hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col relative ${dropdownOpen ? 'z-50' : 'z-0'}`}
     >
       {/* Cover - fixed aspect */}
       <div
@@ -182,7 +191,7 @@ export default function BookCard({ book, onClick, view, onStatusChange, onDelete
       <div className="mt-auto flex items-center justify-between gap-2 shrink-0 min-h-[28px]">
         <div className="min-w-0 flex-1 flex items-center">
           {onStatusChange ? (
-            <StatusDropdown book={book} onStatusChange={onStatusChange} />
+            <StatusDropdown book={book} onStatusChange={onStatusChange} onOpenChange={setDropdownOpen} />
           ) : (
             <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${STATUS_COLORS[book.status]}`}>
               {STATUS_LABELS[book.status]}

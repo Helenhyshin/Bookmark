@@ -25,6 +25,7 @@ function BooksPageInner() {
 
   const [books, setBooks] = useState<Book[]>([])
   const [filter, setFilter] = useState<Status>(initialFilter)
+  const [genreFilter, setGenreFilter] = useState('')
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -63,7 +64,15 @@ function BooksPageInner() {
     setSelectedBook((prev) => (prev?.id === book.id ? null : prev))
   }, [])
 
-  const filtered = filter === 'all' ? books : books.filter((b) => b.status === filter)
+  const genres = Array.from(
+    new Set(books.map((b) => b.genre).filter((g): g is string => !!g))
+  ).sort()
+
+  const filtered = books.filter((b) => {
+    if (filter !== 'all' && b.status !== filter) return false
+    if (genreFilter && b.genre !== genreFilter) return false
+    return true
+  })
 
   const counts: Record<Status, number> = {
     all: books.length,
@@ -79,7 +88,7 @@ function BooksPageInner() {
 
       {/* Filter bar */}
       <div className="mb-4">
-        <FilterBar active={filter} onChange={setFilter} counts={counts} />
+        <FilterBar active={filter} onChange={setFilter} counts={counts} genres={genres} activeGenre={genreFilter} onGenreChange={setGenreFilter} />
       </div>
 
       {/* Loading */}
@@ -101,25 +110,28 @@ function BooksPageInner() {
 
       {/* Grid (desktop) */}
       {!loading && filtered.length > 0 && (
-        <div className="hidden md:flex md:flex-wrap md:gap-4">
+        <div className="hidden md:grid md:grid-cols-[repeat(auto-fill,180px)] md:gap-4">
           {filtered.map((book) => (
-            <div key={book.id}>
-              <BookCard
-                book={book}
-                view="grid"
-                onClick={() => setSelectedBook(selectedBook?.id === book.id ? null : book)}
-                onStatusChange={(status) => handleStatusChange(book, status)}
-                onDelete={() => handleDelete(book)}
-              />
-              {selectedBook?.id === book.id && (
-                <BookDetail
-                  book={book}
-                  onClose={() => setSelectedBook(null)}
-                  onUpdated={fetchBooks}
-                />
-              )}
-            </div>
+            <BookCard
+              key={book.id}
+              book={book}
+              view="grid"
+              onClick={() => setSelectedBook(selectedBook?.id === book.id ? null : book)}
+              onStatusChange={(status) => handleStatusChange(book, status)}
+              onDelete={() => handleDelete(book)}
+            />
           ))}
+        </div>
+      )}
+
+      {/* Desktop detail panel */}
+      {!loading && selectedBook && (
+        <div className="hidden md:block mt-4">
+          <BookDetail
+            book={selectedBook}
+            onClose={() => setSelectedBook(null)}
+            onUpdated={fetchBooks}
+          />
         </div>
       )}
 
