@@ -91,7 +91,7 @@ export default function AIPicks() {
           <button
             onClick={() => fetchPicks(true)}
             disabled={refreshing}
-            className="flex items-center gap-1.5 text-xs font-medium text-black hover:text-gray-600 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 text-xs font-medium text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
           >
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
             {refreshing ? 'Updating…' : 'Library changed — update picks'}
@@ -99,7 +99,7 @@ export default function AIPicks() {
         ) : (
           <button
             onClick={() => fetchPicks(true)}
-            className="text-gray-400 hover:text-black transition-colors"
+            className="text-gray-400 hover:text-black dark:hover:text-white transition-colors"
             title="Refresh recommendations"
             disabled={refreshing}
           >
@@ -129,7 +129,7 @@ export default function AIPicks() {
         <div className="relative flex items-center gap-2">
           <button
             onClick={() => scroll('left')}
-            className="shrink-0 w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-lg font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            className="shrink-0 w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center text-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-colors"
             aria-label="Previous cards"
           >
             ‹
@@ -141,12 +141,12 @@ export default function AIPicks() {
           >
             {loading
               ? Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="w-[180px] shrink-0 snap-start bg-white rounded-2xl p-4 shadow-sm border border-gray-100 animate-pulse flex flex-col gap-2">
-                    <div className="w-full bg-gray-100 rounded-lg" style={{ aspectRatio: '2/3' }} />
-                    <div className="h-3 bg-gray-100 rounded w-2/3" />
-                    <div className="h-2.5 bg-gray-100 rounded w-3/4" />
-                    <div className="h-2 bg-gray-100 rounded w-1/2" />
-                    <div className="h-7 bg-gray-100 rounded-lg mt-auto" />
+                  <div key={i} className="w-[180px] shrink-0 snap-start bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 animate-pulse flex flex-col gap-2">
+                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-lg" style={{ aspectRatio: '2/3' }} />
+                    <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded w-2/3" />
+                    <div className="h-2.5 bg-gray-100 dark:bg-gray-700 rounded w-3/4" />
+                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded w-1/2" />
+                    <div className="h-7 bg-gray-100 dark:bg-gray-700 rounded-lg mt-auto" />
                   </div>
                 ))
               : picks.map((pick) => (
@@ -162,7 +162,7 @@ export default function AIPicks() {
 
           <button
             onClick={() => scroll('right')}
-            className="shrink-0 w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-lg font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+            className="shrink-0 w-10 h-10 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 flex items-center justify-center text-lg font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-500 transition-colors"
             aria-label="Next cards"
           >
             ›
